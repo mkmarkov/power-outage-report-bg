@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FEED_URL: https://mkmarkov.github.io/ima-li-tok-data/outages.json
+  FEED_URL: https://mkmarkov.github.io/power-outage-report-bg/outages.json
 
 jobs:
   publish:

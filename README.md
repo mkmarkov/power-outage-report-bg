@@ -3,7 +3,7 @@
 Scheduled scraper that polls Bulgaria's three electricity distribution
 operators and publishes a single static feed for the **Има ли ток** app:
 
-**https://mkmarkov.github.io/ima-li-tok-data/outages.json**
+**https://mkmarkov.github.io/power-outage-report-bg/outages.json**
 
 | DSO | Coverage | Integration | Polled |
 |-----|----------|-------------|--------|
