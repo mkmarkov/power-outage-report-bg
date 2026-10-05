@@ -1,0 +1,5 @@
+# Dependencies for the outages feed publisher
+httpx==0.28.1
+beautifulsoup4==4.12.3
+lxml==5.3.0
+pdfplumber==0.11.4
