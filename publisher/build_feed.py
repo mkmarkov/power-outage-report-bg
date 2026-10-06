@@ -132,9 +132,14 @@ def build_feed(
             continue
 
         first_seen = {o["id"]: o.get("first_seen_at") for o in kept}
+        notified = {o["id"]: o["notified_at"] for o in kept if o.get("notified_at")}
         by_id: dict[str, dict] = {}
         for o in raw:
-            by_id[o.source_ref] = outage_to_json(o, first_seen.get(o.source_ref) or _iso(now))
+            entry = outage_to_json(o, first_seen.get(o.source_ref) or _iso(now))
+            # Push state (publisher/notify.py) survives a re-fetch of the same outage
+            if o.source_ref in notified:
+                entry["notified_at"] = notified[o.source_ref]
+            by_id[o.source_ref] = entry
         new_count = sum(1 for oid in by_id if oid not in first_seen)
         logger.info("%s: %d fetched, %d unique, %d new", name, len(raw), len(by_id), new_count)
 
@@ -150,12 +155,15 @@ def build_feed(
 
     outages = [o for o in outages if is_current(o, now)]
     outages.sort(key=lambda o: (o.get("start_at") or "", o["id"]))
-    return {
+    feed = {
         "version": FEED_VERSION,
         "generated_at": _iso(now),
         "sources": sources,
         "outages": outages,
     }
+    if "push" in previous:
+        feed["push"] = previous["push"]
+    return feed
 
 
 def check_health(feed_path: Path) -> int:

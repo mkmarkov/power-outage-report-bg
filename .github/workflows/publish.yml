@@ -50,6 +50,15 @@ jobs:
           python -m publisher.build_feed --out site --previous-url "$FEED_URL"
           ${{ inputs.force && '--force' || '' }}
 
+      # Pushes new outages to FCM place topics and marks them in the feed,
+      # so it runs before the upload. Without the secret it marks only.
+      - name: Push notifications
+        id: notify
+        continue-on-error: true
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: python -m publisher.notify --feed site/outages.json
+
       - name: Add static pages (privacy policy)
         run: cp -r static/. site/
 
@@ -69,4 +78,11 @@ jobs:
 
       # Fails the run (and emails the repo owner) when a DSO keeps failing
       - name: Check source health
+        if: always()
         run: python -m publisher.build_feed --check-health site/outages.json
+
+      - name: Report push failures
+        if: steps.notify.outcome == 'failure'
+        run: |
+          echo "::error::Push notifications failed; see the 'Push notifications' step log"
+          exit 1
