@@ -50,6 +50,9 @@ jobs:
           python -m publisher.build_feed --out site --previous-url "$FEED_URL"
           ${{ inputs.force && '--force' || '' }}
 
+      - name: Add static pages (privacy policy)
+        run: cp -r static/. site/
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
